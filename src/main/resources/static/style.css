@@ -1,0 +1,41 @@
+body {
+    padding-top: 55px;
+}
+.style1{
+    background-color: white;
+    color: black;
+}
+.bd-highlight {
+    border: 1px solid rgba(86,61,124,0.15);
+}
+.style-text-height{
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.top-button {
+    width:50px;
+    border:2px solid #ccc;
+    background:#f7f7f7;
+    text-align:center;
+    padding:10px;
+    position:fixed;
+    bottom:50px;
+    right:20px;
+    cursor:pointer;
+    color:#333;
+    font-family: verdana, serif;
+    font-size:12px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+}
+
+textarea {
+    vertical-align:top;
+    display: block;
+}
+
