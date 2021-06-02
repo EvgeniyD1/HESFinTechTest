@@ -24,13 +24,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/login", "/list", "/static/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
+                    .and()
                 .formLogin()
                 .loginPage("/login")
                 .permitAll()
-                .and()
-                /* .rememberMe()
-                     .and()*/
+                    .and()
+                .rememberMe()
+                    .and()
                 .logout()
                 .permitAll();
     }

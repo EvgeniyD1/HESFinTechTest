@@ -1,5 +1,7 @@
 package com.example.hes_fin_tech_test.controller;
 
+import com.example.hes_fin_tech_test.domain.Role;
+import com.example.hes_fin_tech_test.domain.Status;
 import com.example.hes_fin_tech_test.domain.UserAccount;
 import com.example.hes_fin_tech_test.service.UserService;
 import org.springframework.data.domain.Page;
@@ -7,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -67,8 +71,8 @@ public class MainController {
     @PostMapping("/user/{id}/edit")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String userEdit(@PathVariable("id") Long userId,
-                           /*@RequestParam String role,
-                           @RequestParam String status,*/
+                           @RequestParam String role,
+                           @RequestParam String status,
                            @Valid UserAccount userAccount,
                            BindingResult bindingResult,
                            Model model){
@@ -80,7 +84,45 @@ public class MainController {
             model.addAttribute("userAccount", userAccount);
             return "userProfileEditor";
         }
+        userAccount.setCreatedAt(userFromDB.getCreatedAt());
+        userAccount.setRole(Role.valueOf(role));
+        userAccount.setStatus(Status.valueOf(status));
         userService.save(userAccount);
-        return "redirect:" + "/user/" + userId;
+        userService.encryptPassword(userAccount.getId());
+        return "redirect:" + "/user/" + userAccount.getId();
     }
+
+    @GetMapping("/user/new")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String createUserForm(){
+        return "createUserForm";
+    }
+
+    @PostMapping("/user/new")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public String createUser(@RequestParam String role,
+                             @RequestParam String status,
+                             @Valid UserAccount userAccount,
+                             BindingResult bindingResult,
+                             Model model){
+        if (bindingResult.hasErrors()){
+            UserAccount userFromDB = userService.findByUsername(userAccount.getUsername());
+            if (userFromDB!=null){
+                model.addAttribute("usernameError", "User exist");
+                return "createUserForm";
+            }
+            Map<String, String> errorsMap = bindingResult.getFieldErrors().stream().collect(
+                    Collectors.toMap(fieldError -> fieldError.getField() + "Error", FieldError::getDefaultMessage));
+            model.mergeAttributes(errorsMap);
+            model.addAttribute("userAccount", userAccount);
+            return "createUserForm";
+        }
+        userAccount.setCreatedAt(new Date());
+        userAccount.setRole(Role.valueOf(role));
+        userAccount.setStatus(Status.valueOf(status));
+        userService.save(userAccount);
+        userService.encryptPassword(userAccount.getId());
+        return "redirect:" + "/user/" + userAccount.getId();
+    }
+
 }

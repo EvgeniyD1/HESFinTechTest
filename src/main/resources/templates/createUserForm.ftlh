@@ -6,9 +6,7 @@
             <div class="card border-secondary my-5">
                 <div class="card-header">User Profile Editor</div>
                 <div class="card-body">
-
-                    <form method="post" action="/user/${userAccount.id}/edit">
-
+                    <form method="post" action="/user/new">
                         <div class="form-group">
                             <label for="username">Username</label>
                             <input type="text" class="form-control ${(usernameError??)?string('is-invalid','')}"
@@ -72,9 +70,7 @@
                             <button type="submit" class="btn btn-outline-secondary">Save</button>
                             <a class="btn btn btn-outline-secondary" href="/">Cancel</a>
                         </div>
-
                     </form>
-
                 </div>
             </div>
         </div>

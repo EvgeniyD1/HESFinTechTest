@@ -32,6 +32,8 @@ public class UserAccount implements UserDetails {
     private String username;
 
     @Column
+    /*that's better ^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d\p{Punct}]{3,}$
+    * no need to do encryption with another request*/
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{3,16}$",
             message = "The password must have only Latin characters and numbers.\n" +
                     "At least one character. At least one digit. \n" +
@@ -75,7 +77,7 @@ public class UserAccount implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return Status.ACTIVE.equals(status);
     }
 
     @Override

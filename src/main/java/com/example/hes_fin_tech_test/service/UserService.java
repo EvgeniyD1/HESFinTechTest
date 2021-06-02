@@ -45,5 +45,9 @@ public class UserService implements UserDetailsService {
         userRepository.save(userAccount);
     }
 
+    public void encryptPassword(Long id){
+        userRepository.encryptPassword(id);
+    }
+
 
 }
