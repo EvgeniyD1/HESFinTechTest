@@ -1,5 +1,4 @@
 <#include "security.ftlh">
-<#import "login.ftlh" as l>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <a class="navbar-brand my-0 h1" href="/">
         <span class="text-white-50">HESFinTechTest</span>
@@ -23,7 +22,12 @@
                 </#if>
             </li>
             <li>
-                <@l.logout />
+                <form action="/logout" method="post">
+                    <input type="hidden" name="_csrf" value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-outline-info">
+                        <#if !userFromSession??>Sing In <#else>Sing Out</#if>
+                    </button>
+                </form>
             </li>
         </ul>
     </div>

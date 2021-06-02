@@ -1,15 +1,13 @@
 package com.example.hes_fin_tech_test.controller;
 
-import com.example.hes_fin_tech_test.domain.Role;
-import com.example.hes_fin_tech_test.domain.Status;
 import com.example.hes_fin_tech_test.domain.UserAccount;
 import com.example.hes_fin_tech_test.service.UserService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -33,11 +30,13 @@ public class MainController {
         this.userService = userService;
     }
 
+    /*return home page*/
     @GetMapping
     public String home() {
         return "home";
     }
 
+    /*search by role and username*/
     @GetMapping("/list")
     public String findAllUsers(@RequestParam(required = false, defaultValue = "") String username,
                                @RequestParam(required = false, defaultValue = "") String role,
@@ -51,23 +50,26 @@ public class MainController {
         return "userList";
     }
 
+    /*user profile view*/
     @GetMapping("/user/{id}")
     public String userPage(@PathVariable("id") Long userId,
-                           Model model){
+                           Model model) {
         UserAccount user = userService.findById(userId).orElseThrow();
         model.addAttribute("user", user);
         return "userProfile";
     }
 
+    /*user profile editor view*/
     @GetMapping("/user/{id}/edit")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String userEdit(@PathVariable("id") Long userId,
-                           Model model){
+                           Model model) {
         UserAccount userAccount = userService.findById(userId).orElseThrow();
         model.addAttribute("userAccount", userAccount);
         return "userProfileEditor";
     }
 
+    /*user profile update form*/
     @PostMapping("/user/{id}/edit")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String userEdit(@PathVariable("id") Long userId,
@@ -75,53 +77,52 @@ public class MainController {
                            @RequestParam String status,
                            @Valid UserAccount userAccount,
                            BindingResult bindingResult,
-                           Model model){
+                           Model model) {
         UserAccount userFromDB = userService.findById(userId).orElseThrow();
-        if (bindingResult.hasErrors()){
-            Map<String, String> errorsMap = bindingResult.getFieldErrors().stream().collect(
-                    Collectors.toMap(fieldError -> fieldError.getField() + "Error", FieldError::getDefaultMessage));
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorsMap = getErrorsMap(bindingResult);
             model.mergeAttributes(errorsMap);
             model.addAttribute("userAccount", userAccount);
             return "userProfileEditor";
         }
-        userAccount.setCreatedAt(userFromDB.getCreatedAt());
-        userAccount.setRole(Role.valueOf(role));
-        userAccount.setStatus(Status.valueOf(status));
-        userService.save(userAccount);
-        userService.encryptPassword(userAccount.getId());
+        userService.updateUser(role, status, userAccount, userFromDB);
         return "redirect:" + "/user/" + userAccount.getId();
     }
 
+    /*validation util*/
+    @NotNull
+    private Map<String, String> getErrorsMap(BindingResult bindingResult) {
+        return bindingResult.getFieldErrors().stream().collect(
+                Collectors.toMap(fieldError -> fieldError.getField() + "Error", FieldError::getDefaultMessage));
+    }
+
+    /*user creation form view*/
     @GetMapping("/user/new")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public String createUserForm(){
+    public String createUserForm() {
         return "createUserForm";
     }
 
+    /*user save form*/
     @PostMapping("/user/new")
     @PreAuthorize("hasAuthority('ADMIN')")
     public String createUser(@RequestParam String role,
                              @RequestParam String status,
                              @Valid UserAccount userAccount,
                              BindingResult bindingResult,
-                             Model model){
-        if (bindingResult.hasErrors()){
-            UserAccount userFromDB = userService.findByUsername(userAccount.getUsername());
-            if (userFromDB!=null){
-                model.addAttribute("usernameError", "User exist");
-                return "createUserForm";
-            }
-            Map<String, String> errorsMap = bindingResult.getFieldErrors().stream().collect(
-                    Collectors.toMap(fieldError -> fieldError.getField() + "Error", FieldError::getDefaultMessage));
+                             Model model) {
+        UserAccount userFromDB = userService.findByUsername(userAccount.getUsername());
+        if (userFromDB != null) {
+            model.addAttribute("usernameError", "User exist");
+            return "createUserForm";
+        }
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorsMap = getErrorsMap(bindingResult);
             model.mergeAttributes(errorsMap);
             model.addAttribute("userAccount", userAccount);
             return "createUserForm";
         }
-        userAccount.setCreatedAt(new Date());
-        userAccount.setRole(Role.valueOf(role));
-        userAccount.setStatus(Status.valueOf(status));
-        userService.save(userAccount);
-        userService.encryptPassword(userAccount.getId());
+        userService.createUser(role, status, userAccount);
         return "redirect:" + "/user/" + userAccount.getId();
     }
 
