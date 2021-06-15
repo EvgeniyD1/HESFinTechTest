@@ -31,11 +31,16 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.webjars.npm/popper.js
 	implementation group: 'org.webjars.npm', name: 'popper.js', version: '1.16.1'
 	// https://mvnrepository.com/artifact/org.webjars.bower/jquery
-	implementation group: 'org.webjars.bower', name: 'jquery', version: '3.5.1'
+	/*implementation group: 'org.webjars.bower', name: 'jquery', version: '3.5.1'*/
+
+	// https://mvnrepository.com/artifact/org.mapstruct/mapstruct
+	implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.4.2.Final'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 }
@@ -43,3 +48,7 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+
+
+

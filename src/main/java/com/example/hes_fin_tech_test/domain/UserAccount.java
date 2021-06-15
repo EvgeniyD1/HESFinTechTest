@@ -12,7 +12,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.Pattern;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -27,27 +26,15 @@ public class UserAccount implements UserDetails {
     private Long id;
 
     @Column
-    @Pattern(regexp = "[A-Za-z]{3,16}",
-            message = "The username must contain only Latin letters, the number of characters is from 3 to 16")
     private String username;
 
     @Column
-    /*that's better ^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d\p{Punct}]{3,}$
-    * no need to do encryption with another request*/
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{3,16}$",
-            message = "The password must have only Latin characters and numbers.\n" +
-                    "At least one character. At least one digit. \n" +
-                    "the number of characters is from 3 to 16")
     private String password;
 
     @Column(name = "first_name")
-    @Pattern(regexp = "[A-Za-z]{1,16}",
-            message = "The first name must contain only Latin letters, the number of characters is from 1 to 16")
     private String firstName;
 
     @Column(name = "last_name")
-    @Pattern(regexp = "[A-Za-z]{1,16}",
-            message = "The last name must contain only Latin letters, the number of characters is from 1 to 16")
     private String lastName;
 
     @Column

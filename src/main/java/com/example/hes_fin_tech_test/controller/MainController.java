@@ -1,6 +1,7 @@
 package com.example.hes_fin_tech_test.controller;
 
 import com.example.hes_fin_tech_test.domain.UserAccount;
+import com.example.hes_fin_tech_test.domain.UserAccountDTO;
 import com.example.hes_fin_tech_test.service.UserService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
@@ -42,7 +43,7 @@ public class MainController {
                                @RequestParam(required = false, defaultValue = "") String role,
                                @PageableDefault(sort = {"id"}, direction = Sort.Direction.ASC, size = 15) Pageable pageable,
                                Model model) {
-        Page<UserAccount> users = userService.findAllUsersByUsernameAndRole(pageable, username, role.toUpperCase());
+        Page<UserAccountDTO> users = userService.findAllUsersByUsernameAndRole(pageable, username, role.toUpperCase());
         model.addAttribute("users", users);
         model.addAttribute("username", username);
         model.addAttribute("role", role);
@@ -54,7 +55,7 @@ public class MainController {
     @GetMapping("/user/{id}")
     public String userPage(@PathVariable("id") Long userId,
                            Model model) {
-        UserAccount user = userService.findById(userId).orElseThrow();
+        UserAccountDTO user = userService.findById(userId).orElseThrow();
         model.addAttribute("user", user);
         return "userProfile";
     }
@@ -64,7 +65,7 @@ public class MainController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String userEdit(@PathVariable("id") Long userId,
                            Model model) {
-        UserAccount userAccount = userService.findById(userId).orElseThrow();
+        UserAccountDTO userAccount = userService.findById(userId).orElseThrow();
         model.addAttribute("userAccount", userAccount);
         return "userProfileEditor";
     }
@@ -75,10 +76,10 @@ public class MainController {
     public String userEdit(@PathVariable("id") Long userId,
                            @RequestParam String role,
                            @RequestParam String status,
-                           @Valid UserAccount userAccount,
+                           @Valid UserAccountDTO userAccount,
                            BindingResult bindingResult,
                            Model model) {
-        UserAccount userFromDB = userService.findById(userId).orElseThrow();
+        UserAccountDTO userFromDB = userService.findById(userId).orElseThrow();
         if (bindingResult.hasErrors()) {
             Map<String, String> errorsMap = getErrorsMap(bindingResult);
             model.mergeAttributes(errorsMap);
@@ -108,7 +109,7 @@ public class MainController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public String createUser(@RequestParam String role,
                              @RequestParam String status,
-                             @Valid UserAccount userAccount,
+                             @Valid UserAccountDTO userAccount,
                              BindingResult bindingResult,
                              Model model) {
         UserAccount userFromDB = userService.findByUsername(userAccount.getUsername());
@@ -123,7 +124,7 @@ public class MainController {
             return "createUserForm";
         }
         userService.createUser(role, status, userAccount);
-        return "redirect:" + "/user/" + userAccount.getId();
+        return "redirect:" + "/";
     }
 
 }
